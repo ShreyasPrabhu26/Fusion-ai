@@ -59,7 +59,7 @@ const routes = [
   {
     label: "Settings",
     icon: Settings,
-    href: "/settings",
+    href: "/sdashboardettings",
   },
 ];
 
