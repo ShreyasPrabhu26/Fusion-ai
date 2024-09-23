@@ -1,21 +1,31 @@
 "use client";
-import * as z from "zod";
-import axios from "axios";
 
+import React, { useState } from "react";
 import { MessageSquare } from "lucide-react";
 import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { ChatCompletionRequestMessage } from "openai";
+import { toast } from "react-hot-toast";
 
-import { formSchema } from "./constants";
 import Heading from "@/components/heading";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { ChatCompletionRequestMessage } from "openai";
+import { Empty } from "@/components/empty";
 
-const ConversationPage = () => {
+import { cn } from "@/lib/utils";
+import { useProModal } from "@/hooks/user-pro-model";
+
+import { formSchema } from "./constants";
+import { UserAvatar } from "@/components/userAvatar";
+import { BotAvatar } from "@/components/bot-avatar";
+import Loader from "@/components/loader";
+
+export default function ConversationPage() {
+  const proModal = useProModal();
   const router = useRouter();
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([]);
 
@@ -27,6 +37,7 @@ const ConversationPage = () => {
   });
 
   const isLoading = form.formState.isSubmitting;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const userMessage: ChatCompletionRequestMessage = {
@@ -39,12 +50,12 @@ const ConversationPage = () => {
         messages: newMessages,
       });
 
-      setMessages((cuurent) => [...cuurent, userMessage, response.data]);
+      setMessages((current) => [...current, userMessage, response.data]);
 
       form.reset();
     } catch (error: any) {
-      // TODO: Open AI Pro MOdel
-      console.error(error);
+      if (error?.response?.status === 403) proModal.onOpen();
+      else toast.error("Something went wrong.");
     } finally {
       router.refresh();
     }
@@ -54,7 +65,7 @@ const ConversationPage = () => {
     <div>
       <Heading
         title="Conversation"
-        description="Our most Advanced Conversation Model."
+        description="Our Most Advanced Conversation Model"
         icon={MessageSquare}
         iconColor="text-violet-500"
         bgColor="bg-violet-500/10"
@@ -69,12 +80,12 @@ const ConversationPage = () => {
               <FormField
                 name="prompt"
                 render={({ field }) => (
-                  <FormItem className="col-span-12 lg-col-span-10">
+                  <FormItem className="col-span-12 lg:col-span-10">
                     <FormControl className="m-0 p-0">
                       <Input
-                        className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                         disabled={isLoading}
-                        placeholder="How far is the Moon?"
+                        placeholder="How do I calculate the radius of a circle?"
+                        className="pl-2 border-0 outline-none focus-visible:ring-0 focus-visible: ring-transparent"
                         {...field}
                       />
                     </FormControl>
@@ -82,8 +93,8 @@ const ConversationPage = () => {
                 )}
               />
               <Button
-                className="col-span-12 lg:col-span-2 w-full"
                 disabled={isLoading}
+                className="col-span-12 lg:col-span-2 w-full"
               >
                 Generate
               </Button>
@@ -91,28 +102,32 @@ const ConversationPage = () => {
           </Form>
         </div>
         <div className="space-y-4 mt-4">
-          <div className="flex flex-col-reverse gap-y-4">
-            <div className="flex flex-col-reverse gap-y-4">
-              {messages.map((message, index) => (
-                <div key={index}>
-                  {Array.isArray(message.content)
-                    ? message.content.map((part, partIndex) => {
-                        if ("text" in part) {
-                          return <span key={partIndex}>{part.text}</span>;
-                        } else {
-                          // Handle 'ChatCompletionContentPartImage' case here
-                          return null;
-                        }
-                      })
-                    : message.content}
-                </div>
-              ))}
+          {isLoading && (
+            <div className="p-8 rounded-lg w-full flex items-center justify-center">
+              <Loader />
             </div>
+          )}
+          {messages.length === 0 && !isLoading && (
+            <Empty label="No Conversation Started Yet." />
+          )}
+          <div className="flex flex-col-reverse gap-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.content}
+                className={cn(
+                  "p-8 w-full flex items-start gap-x-8 rounded-lg",
+                  message.role === "user"
+                    ? "bg-teal-600 text-white border border-black/10"
+                    : "bg-green-700"
+                )}
+              >
+                {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
+                <p className="text-sm">{message.content}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default ConversationPage;
+}
