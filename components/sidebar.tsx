@@ -1,24 +1,24 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
+import React from "react";
 import { Montserrat } from "next/font/google";
-import { cn } from "@/lib/utils";
 import {
-  Code,
-  ImageIcon,
   LayoutDashboard,
   MessageSquare,
-  Music,
-  Settings,
+  ImageIcon,
   VideoIcon,
+  Music,
+  Code,
+  Settings,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
 
-const montserrat = Montserrat({
-  weight: "600",
-  subsets: ["latin"],
-});
+import { cn } from "@/lib/utils";
+import FreeCounter from "@/components/free-counter";
+
+const montserrat = Montserrat({ weight: "600", subsets: ["latin"] });
 
 const routes = [
   {
@@ -37,13 +37,13 @@ const routes = [
     label: "Image Generation",
     icon: ImageIcon,
     href: "/image",
-    color: "text-pink-500",
+    color: "text-pink-700",
   },
   {
     label: "Video Generation",
     icon: VideoIcon,
     href: "/video",
-    color: "text-orange-500",
+    color: "text-orange-700",
   },
   {
     label: "Music Generation",
@@ -52,28 +52,35 @@ const routes = [
     color: "text-emerald-500",
   },
   {
-    label: "Code Generator",
+    label: "Code Generation",
     icon: Code,
     href: "/code",
-    color: "text-green-500",
+    color: "text-green-700",
   },
   {
     label: "Settings",
     icon: Settings,
-    href: "/dashboard-settings",
+    href: "/settings",
   },
 ];
 
-const Sidebar = () => {
-  const pathName = usePathname();
+export default function Sidebar({
+  apiLimitCount = 0,
+  isPro = false,
+}: {
+  apiLimitCount: number;
+  isPro: boolean;
+}) {
+  const pathname = usePathname();
+
   return (
     <div className="space-y-4 py-4 flex flex-col h-full bg-[#111827] text-white">
       <div className="px-3 py-2 flex-1">
         <Link href="/dashboard" className="flex items-center pl-3 mb-14">
-          <div className="relative w-12 h-12 mr-4">
-            <Image fill alt="Logo" src={"/logo.png"} />
+          <div className="relative w-8 h-8 mr-4">
+            <Image fill alt="LoGo" src="/logo.png" />
           </div>
-          <h1 className={cn(`text-2xl font-bold`, montserrat.className)}>
+          <h1 className={cn("text-2xl font-bold", montserrat.className)}>
             Fusion Ai
           </h1>
         </Link>
@@ -84,7 +91,7 @@ const Sidebar = () => {
               key={route.href}
               className={cn(
                 "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-white hover:bg-white/10 rounded-lg transition",
-                pathName === route.href
+                pathname === route.href
                   ? "text-white bg-white/10"
                   : "text-zinc-400"
               )}
@@ -97,8 +104,7 @@ const Sidebar = () => {
           ))}
         </div>
       </div>
+      <FreeCounter isPro={isPro} apiLimitCount={apiLimitCount} />
     </div>
   );
-};
-
-export default Sidebar;
+}
