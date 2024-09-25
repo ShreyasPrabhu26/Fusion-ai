@@ -5,7 +5,7 @@ import { createUser } from "./createUser";
 interface ApiLimitInfo {
   usedTokens?: number;
   tokenLimit?: number;
-  message?: string;
+  error_message?: string;
 }
 
 export const getApiLimitInfo = async (): Promise<ApiLimitInfo> => {
@@ -13,7 +13,7 @@ export const getApiLimitInfo = async (): Promise<ApiLimitInfo> => {
 
   if (!userId) {
     return {
-      message: "User Not Found",
+      error_message: "User Not Found",
     };
   }
 
@@ -37,7 +37,7 @@ export const getApiLimitInfo = async (): Promise<ApiLimitInfo> => {
 
   if (!userApiLimits) {
     return {
-      message: "Failed to fetch user API limits",
+      error_message: "Failed to fetch user API limits",
     };
   }
 

@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { useProModal } from "@/hooks/user-pro-model";
 
 interface TokenInfo {
-  usedTokens: number;
-  tokenLimit: number;
+  usedTokens?: number;
+  tokenLimit?: number;
+  message?: string;
 }
 
 export default function FreeCounter({
@@ -19,7 +20,7 @@ export default function FreeCounter({
 }: {
   tokenInfoObject: TokenInfo;
 }) {
-  const { usedTokens = 0, tokenLimit = 1 } = tokenInfoObject; // Provide default values
+  const { usedTokens = 0, tokenLimit = 0 } = tokenInfoObject;
   const proModal = useProModal();
   const [mounted, setMounted] = useState(false);
 

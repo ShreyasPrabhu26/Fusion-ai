@@ -65,8 +65,9 @@ const routes = [
 ];
 
 interface TokenInfo {
-  usedTokens: number;
-  tokenLimit: number;
+  usedTokens?: number;
+  tokenLimit?: number;
+  message?: string;
 }
 
 export default function Sidebar({
