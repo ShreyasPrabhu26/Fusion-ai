@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { Configuration, OpenAIApi, ChatCompletionRequestMessage } from "openai";
 
-import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
+import { getApiLimitInfo, increaseApiLimit } from "@/lib/api-limit";
 import { TOKEN_PER_CODE } from "@/constants";
 
 const configuration = new Configuration({
@@ -31,10 +31,18 @@ export async function POST(req: Request) {
     if (!messages)
       return new NextResponse("Messages Are Required", { status: 400 });
 
-    const freeTrial = await checkApiLimit();
+    const { usedTokens, tokenLimit } = await getApiLimitInfo();
 
-    if (!freeTrial)
-      return new NextResponse("Free Trial Has Expired", { status: 403 });
+    if (!usedTokens || !tokenLimit) {
+      return new NextResponse("Token information is not available", {
+        status: 500,
+      });
+    }
+
+    if (usedTokens > tokenLimit)
+      return new NextResponse("Token Has Expired Please Upgrade your Plan", {
+        status: 403,
+      });
 
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",

@@ -64,12 +64,15 @@ const routes = [
   },
 ];
 
+interface TokenInfo {
+  usedTokens: number;
+  tokenLimit: number;
+}
+
 export default function Sidebar({
-  apiLimitCount = 0,
-  isPro = false,
+  tokenInfoObject,
 }: {
-  apiLimitCount: number;
-  isPro: boolean;
+  tokenInfoObject: TokenInfo;
 }) {
   const pathname = usePathname();
 
@@ -104,7 +107,7 @@ export default function Sidebar({
           ))}
         </div>
       </div>
-      <FreeCounter isPro={isPro} apiLimitCount={apiLimitCount} />
+      <FreeCounter tokenInfoObject={tokenInfoObject} />
     </div>
   );
 }

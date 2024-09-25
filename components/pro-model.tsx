@@ -68,7 +68,7 @@ export default function ProModel() {
   const onSubscribe = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/stripe");
+      const response = await axios.get("/api/razorpay");
 
       window.location.href = response.data.url;
     } catch (error) {

@@ -7,16 +7,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 
-import { MAX_FREE_COUNT } from "@/constants";
 import { useProModal } from "@/hooks/user-pro-model";
 
+interface TokenInfo {
+  usedTokens: number;
+  tokenLimit: number;
+}
+
 export default function FreeCounter({
-  apiLimitCount = 0,
-  isPro = false
+  tokenInfoObject,
 }: {
-  apiLimitCount: number;
-  isPro: boolean;
+  tokenInfoObject: TokenInfo;
 }) {
+  const { usedTokens = 0, tokenLimit = 1 } = tokenInfoObject; // Provide default values
   const proModal = useProModal();
   const [mounted, setMounted] = useState(false);
 
@@ -26,20 +29,15 @@ export default function FreeCounter({
 
   if (!mounted) return null;
 
-  if (isPro) return null;
-
   return (
     <div className="px-3">
       <Card className="bg-white/10 border-0">
         <CardContent className="py-6">
           <div className="text-center text-sm text-white mb-4 space-y-2">
             <p>
-              {apiLimitCount} / {MAX_FREE_COUNT} Free Generations
+              {usedTokens} / {tokenLimit} Generations
             </p>
-            <Progress
-              className="h-3"
-              value={(apiLimitCount / MAX_FREE_COUNT) * 100}
-            />
+            <Progress className="h-3" value={(usedTokens / tokenLimit) * 100} />
           </div>
           <Button
             onClick={proModal.onOpen}
