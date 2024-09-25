@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Replicate from "replicate";
 import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
+import { TOKEN_PER_MUSIC_GENERATION } from "@/constants";
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
       }
     );
 
-    await increaseApiLimit();
+    await increaseApiLimit(TOKEN_PER_MUSIC_GENERATION);
 
     return NextResponse.json(response);
   } catch (error) {

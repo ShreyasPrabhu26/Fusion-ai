@@ -1,1 +1,5 @@
-export const MAX_FREE_COUNT = 50;
+export const TOKEN_PER_CONVERSATION = 5;
+export const TOKEN_PER_CODE = 5;
+export const TOKEN_PER_IMAGE_GENERATION = 10;
+export const TOKEN_PER_MUSIC_GENERATION = 10;
+export const TOKEN_PER_VIDEO_GENERATION = 20;

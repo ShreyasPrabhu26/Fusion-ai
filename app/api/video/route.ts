@@ -3,6 +3,7 @@ import Replicate from "replicate";
 import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
 
 import { auth } from "@clerk/nextjs/server";
+import { TOKEN_PER_VIDEO_GENERATION } from "@/constants";
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
         },
       }
     );
-    await increaseApiLimit();
+    await increaseApiLimit(TOKEN_PER_VIDEO_GENERATION);
     return NextResponse.json(response);
   } catch (error) {
     console.error("[VIDEO_ERROR]", error);

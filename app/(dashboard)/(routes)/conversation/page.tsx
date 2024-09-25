@@ -23,6 +23,7 @@ import { formSchema } from "./constants";
 import { UserAvatar } from "@/components/userAvatar";
 import { BotAvatar } from "@/components/bot-avatar";
 import Loader from "@/components/loader";
+import { increaseApiLimit } from "@/lib/api-limit";
 
 export default function ConversationPage() {
   const proModal = useProModal();

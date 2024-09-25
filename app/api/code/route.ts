@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { Configuration, OpenAIApi, ChatCompletionRequestMessage } from "openai";
 
 import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
+import { TOKEN_PER_CODE } from "@/constants";
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
       messages: [insructionMessage, ...messages],
     });
 
-    await increaseApiLimit();
+    await increaseApiLimit(TOKEN_PER_CODE);
 
     return NextResponse.json(response.data.choices[0].message);
   } catch (error) {
