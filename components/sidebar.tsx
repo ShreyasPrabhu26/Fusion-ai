@@ -12,7 +12,7 @@ import {
   VideoIcon,
   Music,
   Code,
-  Settings,
+  SubtitlesIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -58,9 +58,9 @@ const routes = [
     color: "text-green-700",
   },
   {
-    label: "Settings",
-    icon: Settings,
-    href: "/settings",
+    label: "Payment",
+    icon: SubtitlesIcon,
+    href: "/payment",
   },
 ];
 
