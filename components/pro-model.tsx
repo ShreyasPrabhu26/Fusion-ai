@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 
 import { useProModal } from "@/hooks/user-pro-model";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 const tools = [
   {
@@ -62,15 +63,15 @@ const tools = [
 ];
 
 export default function ProModel() {
+  const router = useRouter();
   const proModal = useProModal();
   const [loading, setLoading] = useState<boolean>(false);
 
   const onSubscribe = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/razorpay");
-
-      window.location.href = response.data.url;
+      router.push("/payment");
+      proModal.onClose();
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {
