@@ -36,18 +36,18 @@ export default function PaymentPage() {
     return null;
   }
 
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   const handlePlanSelect = async (plan: string) => {
     try {
+      if (plan === "Enterprise") {
+        window.open("https://cal.com/shreyasprabhu/30min", "_blank");
+        return;
+      }
       setIsProcessing(true);
-      setSelectedPlan(plan);
-
-      console.log(selectedPlan);
 
       const responseFromRazorPay = await axios.post("/api/razorpay", {
-        selectedPlan,
+        selectedPlan: plan,
       });
 
       const { order_id, amount, currency } = responseFromRazorPay.data;
@@ -99,7 +99,7 @@ export default function PaymentPage() {
       razorPay.open();
     } catch (error) {
       console.log("Payment Failed", error);
-      toast.error("Oops! Payment Failed!");
+      toast.error("Oops! Something went wrong!");
     } finally {
       setIsProcessing(false);
     }

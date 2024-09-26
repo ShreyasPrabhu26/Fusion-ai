@@ -17,7 +17,7 @@ export const addPaymentInfoToDb = async (paymentResponse: PaymentResponse) => {
   }
 
   try {
-    await prismadb.paymentInformation.create({
+    const paymentEntry = await prismadb.paymentInformation.create({
       data: {
         userId: paymentResponse.userId,
         receipt_id: paymentResponse.receipt_id,
@@ -27,12 +27,11 @@ export const addPaymentInfoToDb = async (paymentResponse: PaymentResponse) => {
         order_id: paymentResponse.order_id,
       },
     });
+    return paymentEntry;
   } catch (error) {
     console.error("Database Insertion Error:", error);
     return {
       error_message: "Failed to save payment information.",
     };
   }
-
-  return {};
 };
