@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
+import { PLANS } from "@/constants";
+
+const ONE_RUPEE_IN_PAISE = 100;
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_PAY_KEY!,
@@ -8,15 +11,46 @@ const razorpay = new Razorpay({
 
 export async function POST(req: NextRequest) {
   try {
+    const { selectedPlan } = await req.json();
+
+    if (!selectedPlan) {
+      return NextResponse.json(
+        { error: "PLAN IS NOT SELECTED!!!" },
+        { status: 400 }
+      );
+    }
+
+    const selectedPlanDetails = PLANS.find(
+      (plan) => plan.title === selectedPlan
+    );
+
+    if (!selectedPlanDetails || typeof selectedPlanDetails.price !== "number") {
+      return NextResponse.json(
+        {
+          error:
+            "Error Creating Order: Plan details are missing or price is invalid",
+        },
+        { status: 500 }
+      );
+    }
+
+    const amount = selectedPlanDetails.price * ONE_RUPEE_IN_PAISE;
+
     const order = await razorpay.orders.create({
-      amount: 100 * 100,
+      amount,
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
+      notes: {
+        PLAN_NAME: selectedPlanDetails.title,
+      },
     });
 
     return NextResponse.json(
       {
         orderId: order.id,
+        receipt: order.receipt,
+        amount,
+        currency: "INR",
       },
       {
         status: 200,

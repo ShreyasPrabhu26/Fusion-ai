@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     const { usedTokens, tokenLimit } = await getApiLimitInfo();
 
-    if (!usedTokens || !tokenLimit) {
+    if (usedTokens === undefined || tokenLimit === undefined) {
       return new NextResponse("Token information is not available", {
         status: 500,
       });

@@ -10,6 +10,7 @@ datasource db {
 model User {
   id                 String              @id @default(cuid())
   userId             String              @unique
+  emailAddress       String              @unique
   usedTokens         Int                 @default(0)
   tokenLimit         Int                 @default(50)
   createdAt          DateTime            @default(now())
@@ -21,9 +22,10 @@ model User {
 model paymentInformation {
   userId     String   @unique
   payment_id String
+  order_id   String
+  receipt_id String
   amount     Int
   currency   String   @default("INR")
-  receipt    String
   createdAt  DateTime @default(now())
 
   User User @relation(fields: [userId], references: [userId], onDelete: Cascade)

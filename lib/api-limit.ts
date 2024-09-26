@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import prismadb from "@/lib/prismaDB";
 import { createUser } from "./createUser";
+import { clerkClient } from "@clerk/nextjs/server"; // Import Clerk client for server-side access
 
 interface ApiLimitInfo {
   usedTokens?: number;
@@ -17,16 +18,29 @@ export const getApiLimitInfo = async (): Promise<ApiLimitInfo> => {
     };
   }
 
+  // Find the user in Prisma DB
   let user = await prismadb.user.findFirst({
     where: {
       userId,
     },
   });
 
+  // If user doesn't exist in Prisma, create a new user using Clerk's email
   if (!user) {
-    user = await createUser(userId);
+    const clerkUser = await clerkClient.users.getUser(userId);
+
+    if (!clerkUser?.primaryEmailAddress?.emailAddress) {
+      return {
+        error_message: "User email not found in Clerk",
+      };
+    }
+
+    const userEmail = clerkUser.primaryEmailAddress.emailAddress;
+
+    user = await createUser(userId, userEmail);
   }
 
+  // Fetch the API usage limits for the user from Prisma
   const userApiLimits = await prismadb.user.findUnique({
     where: { userId },
     select: {
@@ -41,7 +55,10 @@ export const getApiLimitInfo = async (): Promise<ApiLimitInfo> => {
     };
   }
 
-  return userApiLimits;
+  return {
+    usedTokens: userApiLimits.usedTokens,
+    tokenLimit: userApiLimits.tokenLimit,
+  };
 };
 
 export const increaseApiLimit = async (increaseBy: number): Promise<void> => {

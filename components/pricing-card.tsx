@@ -10,16 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-type PricingCardProps = {
-  title: string;
-  yearlyPrice?: number;
-  description: string;
-  features: string[];
-  actionLabel: string;
-  popular?: boolean;
-  exclusive?: boolean;
-};
-
 export const PricingHeader = ({
   title,
   subtitle,
@@ -41,14 +31,26 @@ export const CheckItem = ({ text }: { text: string }) => (
   </div>
 );
 
+type PricingCardProps = {
+  title: string;
+  price?: number | string;
+  description: string;
+  features: string[];
+  actionLabel: string;
+  popular?: boolean;
+  exclusive?: boolean;
+  onClickHandler: () => void;
+};
+
 export const PricingCard = ({
   title,
-  yearlyPrice,
+  price,
   description,
   features,
   actionLabel,
   popular,
   exclusive,
+  onClickHandler,
 }: PricingCardProps) => (
   <Card
     className={cn(
@@ -69,15 +71,11 @@ export const PricingCard = ({
         {title === "Enterprise" ? (
           <></>
         ) : (
-          <>
-            <div className="flex items-end gap-1">
-              <h3 className="text-3xl font-bold">₹{yearlyPrice}</h3>
-              <span className="text-xl">Tokens</span>
-            </div>
-          </>
+          <div className="flex items-end gap-1">
+            <h3 className="text-3xl font-bold">₹{price}</h3>
+            <span className="text-xl">Tokens</span>
+          </div>
         )}
-
-        {}
         <CardDescription className="pt-1.5 h-12">{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
@@ -87,7 +85,13 @@ export const PricingCard = ({
       </CardContent>
     </div>
     <CardFooter className="mt-2">
-      <Button className="relative inline-flex w-full items-center justify-center rounded-md bg-black text-white dark:bg-white px-6 font-medium  dark:text-black transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
+      <Button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClickHandler();
+        }}
+        className="relative inline-flex w-full items-center justify-center rounded-md bg-black text-white dark:bg-white px-6 font-medium  dark:text-black transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+      >
         <div className="absolute -inset-0.5 -z-10 rounded-lg bg-gradient-to-b from-[#c7d2fe] to-[#8678f9] opacity-75 blur" />
         {actionLabel}
       </Button>

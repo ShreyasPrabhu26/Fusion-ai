@@ -1,11 +1,15 @@
 import prismadb from "@/lib/prismaDB";
 import { User } from "@prisma/client";
 
-export async function createUser(userId: string): Promise<User | null> {
+export async function createUser(
+  userId: string,
+  emailAddress: string
+): Promise<User | null> {
   try {
     const newUser = await prismadb.user.create({
       data: {
         userId,
+        emailAddress,
       },
     });
 

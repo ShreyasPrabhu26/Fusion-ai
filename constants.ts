@@ -4,10 +4,20 @@ export const TOKEN_PER_IMAGE_GENERATION = 10;
 export const TOKEN_PER_MUSIC_GENERATION = 10;
 export const TOKEN_PER_VIDEO_GENERATION = 20;
 
-export const PLANS = [
+interface Plan {
+  title: string;
+  price: number | string;
+  description: string;
+  features: string[];
+  actionLabel: string;
+  popular?: boolean;
+  exclusive?: boolean;
+}
+
+export const PLANS: Plan[] = [
   {
     title: "Basic",
-    yearlyPrice: 100,
+    price: 99,
     description:
       "Track your usage with 100 tokens per year. Essential features you need to get started.",
     features: [
@@ -23,11 +33,11 @@ export const PLANS = [
   },
   {
     title: "Pro",
-    yearlyPrice: 200,
+    price: 199,
     description:
       "Track your usage with 200 tokens per year. Perfect for owners of small & medium businesses.",
     features: [
-      "All Basic Feautures",
+      "All Basic Features",
       "Advanced analytics tools",
       "Priority email support",
       "Weekly usage reports",
@@ -44,7 +54,7 @@ export const PLANS = [
     description:
       "Dedicated support and infrastructure to fit your needs. Contact us for a custom token plan.",
     features: [
-      "All Pro Feautures",
+      "All Pro Features",
       "Custom token allocation",
       "Dedicated account manager",
       "Enhanced security features",
