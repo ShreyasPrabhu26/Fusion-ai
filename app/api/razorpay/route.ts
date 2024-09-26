@@ -47,8 +47,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        orderId: order.id,
-        receipt: order.receipt,
+        order_id: order.id,
+        receipt_id: order.receipt,
         amount,
         currency: "INR",
       },

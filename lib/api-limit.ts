@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import prismadb from "@/lib/prismaDB";
 import { createUser } from "./createUser";
-import { clerkClient } from "@clerk/nextjs/server"; // Import Clerk client for server-side access
+import { clerkClient } from "@clerk/nextjs/server";
 
 interface ApiLimitInfo {
   usedTokens?: number;

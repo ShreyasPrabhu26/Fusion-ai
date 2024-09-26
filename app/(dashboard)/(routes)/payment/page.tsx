@@ -8,6 +8,9 @@ import { PLANS } from "@/constants";
 import axios from "axios";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { addPaymentInfoToDb } from "@/lib/addPaymentInfoToDb";
+import { useAuth } from "@clerk/nextjs";
 
 declare global {
   interface Window {
@@ -15,8 +18,24 @@ declare global {
   }
 }
 
+interface PaymentResponse {
+  userId: string;
+  payment_id: string;
+  amount: number;
+  currency: string;
+  order_id: string;
+  receipt_id: string;
+}
+
 export default function PaymentPage() {
   const router = useRouter();
+  const { userId } = useAuth();
+
+  if (!userId) {
+    router.push("/sign-in");
+    return null;
+  }
+
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
@@ -25,31 +44,51 @@ export default function PaymentPage() {
       setIsProcessing(true);
       setSelectedPlan(plan);
 
+      console.log(selectedPlan);
+
       const responseFromRazorPay = await axios.post("/api/razorpay", {
         selectedPlan,
       });
 
+      const { order_id, amount, currency } = responseFromRazorPay.data;
+
+      console.log(order_id, amount, currency);
+
       const options = {
         key: process.env.RAZORPAY_PAY_KEY,
         currency: "INR",
-        order_id: responseFromRazorPay.data.orderId,
+        order_id,
         name: "Shreyas Technologies",
         description: "Testing Razorpay",
-        handler: function (response: any) {
-          const { reciept_id, amount, currency } = responseFromRazorPay.data;
-          console.log("Payment Successfull", {
-            reciept_id,
+        handler: async function (response: any) {
+          const paymentData = {
+            order_id,
+            userId,
             amount,
             currency,
             payment_id: response["razorpay_payment_id"],
-            order_id: response["razorpay_order_id"],
-          });
-          router.push("/dashboard");
+            receipt_id: response["razorpay_order_id"],
+          };
+
+          // Call the new API to add payment info to the database
+          const dbResponse = await axios.post(
+            "/api/addPaymentInfo",
+            paymentData
+          );
+
+          if (dbResponse.data.error_message) {
+            toast.error(
+              "[INFRA] Database is not active. Please Contact Developer"
+            );
+          } else {
+            toast.success("Congratulations! Payment Successful");
+            router.push("/dashboard");
+          }
         },
         prefill: {
           name: "Shreyas Technologies",
           email: "test@email.com",
-          conatact: "+910000000000",
+          contact: "+910000000000",
         },
         theme: {
           color: "#3399cc",
@@ -60,6 +99,7 @@ export default function PaymentPage() {
       razorPay.open();
     } catch (error) {
       console.log("Payment Failed", error);
+      toast.error("Oops! Payment Failed!");
     } finally {
       setIsProcessing(false);
     }
@@ -90,6 +130,7 @@ export default function PaymentPage() {
                   key={plan.title}
                   {...plan}
                   onClickHandler={() => handlePlanSelect(plan.title)}
+                  isProcessing={isProcessing}
                 />
               );
             })}

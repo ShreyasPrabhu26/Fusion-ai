@@ -39,6 +39,7 @@ type PricingCardProps = {
   actionLabel: string;
   popular?: boolean;
   exclusive?: boolean;
+  isProcessing: boolean;
   onClickHandler: () => void;
 };
 
@@ -51,6 +52,7 @@ export const PricingCard = ({
   popular,
   exclusive,
   onClickHandler,
+  isProcessing,
 }: PricingCardProps) => (
   <Card
     className={cn(
@@ -86,6 +88,7 @@ export const PricingCard = ({
     </div>
     <CardFooter className="mt-2">
       <Button
+        disabled={isProcessing}
         onClick={(e) => {
           e.stopPropagation();
           onClickHandler();
