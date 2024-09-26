@@ -9,7 +9,6 @@ import axios from "axios";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { addPaymentInfoToDb } from "@/lib/addPaymentInfoToDb";
 import { useAuth } from "@clerk/nextjs";
 
 declare global {
@@ -52,14 +51,12 @@ export default function PaymentPage() {
 
       const { order_id, amount, currency } = responseFromRazorPay.data;
 
-      console.log(order_id, amount, currency);
-
       const options = {
         key: process.env.RAZORPAY_PAY_KEY,
         currency: "INR",
         order_id,
         name: "Shreyas Technologies",
-        description: "Testing Razorpay",
+        description: "Welcome To Fusion Ai",
         handler: async function (response: any) {
           const paymentData = {
             order_id,
@@ -70,25 +67,26 @@ export default function PaymentPage() {
             receipt_id: response["razorpay_order_id"],
           };
 
-          // Call the new API to add payment info to the database
-          const dbResponse = await axios.post(
-            "/api/addPaymentInfo",
-            paymentData
+          const dbResponse: any = await axios.post(
+            "/api/addPaymentInfoAndUpdateToken",
+            {
+              paymentData,
+            }
           );
 
-          if (dbResponse.data.error_message) {
+          if (dbResponse.error_message) {
             toast.error(
               "[INFRA] Database is not active. Please Contact Developer"
             );
           } else {
             toast.success("Congratulations! Payment Successful");
-            router.push("/dashboard");
+            router.refresh();
           }
         },
         prefill: {
           name: "Shreyas Technologies",
-          email: "test@email.com",
-          contact: "+910000000000",
+          // email: "test@email.com",
+          // contact: "+910000000000",
         },
         theme: {
           color: "#3399cc",
@@ -98,10 +96,11 @@ export default function PaymentPage() {
       const razorPay = new window.Razorpay(options);
       razorPay.open();
     } catch (error) {
-      console.log("Payment Failed", error);
+      // console.log("Payment Failed", error);
       toast.error("Oops! Something went wrong!");
     } finally {
       setIsProcessing(false);
+      router.push("/dashboard");
     }
   };
 

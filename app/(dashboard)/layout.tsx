@@ -1,12 +1,14 @@
 import Navbar from "@/components/navbar";
 import Sidebar from "@/components/sidebar";
 import { getApiLimitInfo } from "@/lib/api-limit";
+import { redirect } from "next/navigation";
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const tokenInfoObject = await getApiLimitInfo();
 
   if (tokenInfoObject.error_message) {
-    console.error(tokenInfoObject.error_message);
+    redirect("/");
+    // console.log(tokenInfoObject.error_message);
   }
 
   return (

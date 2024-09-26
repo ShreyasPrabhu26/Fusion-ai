@@ -10,55 +10,62 @@ interface ApiLimitInfo {
 }
 
 export const getApiLimitInfo = async (): Promise<ApiLimitInfo> => {
-  const { userId } = auth();
+  try {
+    const { userId } = auth();
 
-  if (!userId) {
-    return {
-      error_message: "User Not Found",
-    };
-  }
-
-  // Find the user in Prisma DB
-  let user = await prismadb.user.findFirst({
-    where: {
-      userId,
-    },
-  });
-
-  // If user doesn't exist in Prisma, create a new user using Clerk's email
-  if (!user) {
-    const clerkUser = await clerkClient.users.getUser(userId);
-
-    if (!clerkUser?.primaryEmailAddress?.emailAddress) {
+    if (!userId) {
       return {
-        error_message: "User email not found in Clerk",
+        error_message: "User Not Found",
       };
     }
 
-    const userEmail = clerkUser.primaryEmailAddress.emailAddress;
+    // Find the user in Prisma DB
+    let user = await prismadb.user.findFirst({
+      where: {
+        userId,
+      },
+    });
 
-    user = await createUser(userId, userEmail);
-  }
+    // If user doesn't exist in Prisma, create a new user using Clerk's email
+    if (!user) {
+      const clerkUser = await clerkClient.users.getUser(userId);
 
-  // Fetch the API usage limits for the user from Prisma
-  const userApiLimits = await prismadb.user.findUnique({
-    where: { userId },
-    select: {
-      usedTokens: true,
-      tokenLimit: true,
-    },
-  });
+      if (!clerkUser?.primaryEmailAddress?.emailAddress) {
+        return {
+          error_message: "User email not found in Clerk",
+        };
+      }
 
-  if (!userApiLimits) {
+      const userEmail = clerkUser.primaryEmailAddress.emailAddress;
+
+      user = await createUser(userId, userEmail);
+    }
+
+    // Fetch the API usage limits for the user from Prisma
+    const userApiLimits = await prismadb.user.findUnique({
+      where: { userId },
+      select: {
+        usedTokens: true,
+        tokenLimit: true,
+      },
+    });
+
+    if (!userApiLimits) {
+      return {
+        error_message: "Failed to fetch user API limits",
+      };
+    }
+
     return {
-      error_message: "Failed to fetch user API limits",
+      usedTokens: userApiLimits.usedTokens,
+      tokenLimit: userApiLimits.tokenLimit,
+    };
+  } catch (error) {
+    console.error("Error fetching API limit info:", error);
+    return {
+      error_message: "An unexpected error occurred while fetching API limits",
     };
   }
-
-  return {
-    usedTokens: userApiLimits.usedTokens,
-    tokenLimit: userApiLimits.tokenLimit,
-  };
 };
 
 export const increaseApiLimit = async (increaseBy: number): Promise<void> => {
