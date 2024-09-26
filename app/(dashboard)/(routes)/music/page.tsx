@@ -36,10 +36,7 @@ export default function MusicPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setMusic(undefined);
-
       const response = await axios.post("/api/music", values);
-      console.log("RESPONSE", response);
-
       setMusic(response.data.audio);
       form.reset();
     } catch (error: any) {
