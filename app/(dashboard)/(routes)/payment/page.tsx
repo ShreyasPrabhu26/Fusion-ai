@@ -52,7 +52,7 @@ export default function PaymentPage() {
       const { order_id, amount, currency } = responseFromRazorPay.data;
 
       const options = {
-        key: process.env.RAZORPAY_PAY_KEY,
+        // key: process.env.RAZORPAY_PAY_KEY,
         currency: "INR",
         order_id,
         name: "Shreyas Technologies",
