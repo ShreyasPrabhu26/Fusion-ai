@@ -93,14 +93,20 @@ export default function PaymentPage() {
         },
       };
 
-      const razorPay = new window.Razorpay(options);
-      razorPay.open();
+      if (window.Razorpay) {
+        const razorPay = new window.Razorpay(options);
+        razorPay.open();
+      } else {
+        console.error("Razorpay is not loaded yet");
+        toast.error(
+          "Payment gateway failed to load. Please try again or Contact Developer."
+        );
+      }
     } catch (error) {
       // console.log("Payment Failed", error);
       toast.error("Oops! Something went wrong!");
     } finally {
       setIsProcessing(false);
-      router.push("/dashboard");
     }
   };
 
@@ -116,7 +122,11 @@ export default function PaymentPage() {
         }}
         className="relative flex flex-col gap-4 items-center justify-center px-4"
       >
-        <Script src="http://checkout.razorpay.com/v1/checkout.js" />
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="lazyOnload"
+        />
+
         <div className="py-8">
           <PricingHeader
             title="Pricing Plans"

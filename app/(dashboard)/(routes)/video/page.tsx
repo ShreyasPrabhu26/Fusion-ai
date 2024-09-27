@@ -21,7 +21,7 @@ import { formSchema } from "./constants";
 export default function VideoPage() {
   const proModal = useProModal();
   const router = useRouter();
-  const [video, setVideo] = useState<string>();
+  const [videoSource, setVideoSource] = useState<string>();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -34,11 +34,11 @@ export default function VideoPage() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setVideo(undefined);
+      setVideoSource(undefined);
 
       const response = await axios.post("/api/video", values);
 
-      setVideo(response.data[0]);
+      setVideoSource(response.data[0]);
       form.reset();
     } catch (error: any) {
       if (error?.response?.status === 403) proModal.onOpen();
@@ -94,13 +94,15 @@ export default function VideoPage() {
               <Loader />
             </div>
           )}
-          {!video && !isLoading && <Empty label="No Video Generated Yet." />}
-          {video && (
+          {!videoSource && !isLoading && (
+            <Empty label="No Video Generated Yet." />
+          )}
+          {videoSource && (
             <video
               controls
               className="w-full aspect-video rounded-lg border bg-black my-8"
             >
-              <source src={video} />
+              <source src={videoSource} />
             </video>
           )}
         </div>
